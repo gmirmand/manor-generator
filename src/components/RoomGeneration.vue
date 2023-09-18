@@ -11,13 +11,15 @@ export default defineComponent({
     deep: Number,
     color: String,
     overlay: Boolean,
+    access: Array,
   }
 })
 </script>
 
 <template>
-  <div class="absolute text-xs inline-flex justify-center items-start leading-none outline outline-4 -outline-offset-4 italic"
-       :style="{
+  <div
+      class="absolute text-xs inline-flex justify-center items-start leading-none outline outline-4 -outline-offset-4 italic"
+      :style="{
             top: `${(y) * 40}px`,
             left: `${(x) * 40}px`,
             width: `${width * 40}px`,
@@ -48,7 +50,31 @@ export default defineComponent({
             "/>
       </template>
     </template>
+
     <div v-if="!overlay" class="absolute w-full h-full opacity-50 inset-0 -z-10" :style="{backgroundColor: color}"/>
+
+    <!--  add doors  -->
+    <template v-for="accessPoint in access">
+      <div
+          class="absolute w-10 h-10 flex"
+          :style="{
+            top: `${(accessPoint.y) * 40}px`,
+            left: `${(accessPoint.x) * 40}px`,
+            justifyContent: accessPoint.direction === 'west' ? 'flex-start' : accessPoint.direction === 'east' ? 'flex-end' : 'center',
+            alignItems: accessPoint.direction === 'north' ? 'flex-start' : accessPoint.direction === 'south' ? 'flex-end' : 'center',
+            zIndex: 10,
+            }"
+      >
+        <div
+            class="rounded-full w-3 h-3 transform"
+            :style="{
+          background: overlay ? 'black' : color,
+          outline: !overlay ? 'none' : '4px solid',
+          outlineColor: color,
+          transform: accessPoint.direction === 'south' ? 'translateY(33%)' : accessPoint.direction === 'north' ? 'translateY(-33%)' : accessPoint.direction === 'west' ? 'translateX(-33%)' : 'translateX(33%)',
+        }"/>
+      </div>
+    </template>
   </div>
 </template>
 

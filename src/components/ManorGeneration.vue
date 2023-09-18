@@ -39,6 +39,7 @@ export default defineComponent({
             ...room,
             width: size.width,
             deep: size.deep,
+            access: size.access,
           })
         })
       })
@@ -79,8 +80,8 @@ export default defineComponent({
       }
 
       // we place the hall
-      // he always is at the middle bottom
-      // we calculate top left coordinates
+      // he always is at the middle south
+      // we calculate north west coordinates
       // based on the width and deep and matrix size
       const hallX = Math.floor((this.manorWidth - hallRoom.width) / 2);
       const hallY = this.manorDeep - hallRoom.deep;
@@ -88,67 +89,67 @@ export default defineComponent({
         ...hallRoom,
         x: hallX,
         y: hallY,
-      }, "add hall - static room // middle bottom").then(() => {
+      }, "add hall - static room // middle south").then(() => {
         // we place a corridor
-        // starting on top of the hall
-        // and go up to the top of the manor
+        // starting on north of the hall
+        // and go up to the north of the manor
         const corridorX = hallX + 1;
         const corridorY = 0
         const corridorDeep = this.manorDeep - hallRoom.deep;
         this.addRoom({
-          name: "top-corridor",
+          name: "north-corridor",
           color: "blue",
           width: 1,
           deep: corridorDeep,
           x: corridorX,
           y: corridorY,
-        }, "top-corridor - static room // top of the hall").then(() => {
+        }, "north-corridor - static room // north of the hall").then(() => {
           // we place a corridor
-          // starting on left of the hall
-          // and go left to the left of the manor
+          // starting on west of the hall
+          // and go to the west of the manor
           const corridorX2 = 0;
           const corridorY2 = hallY + 1
           const corridorWidth2 = hallX;
           this.addRoom({
-            name: "left-corridor",
+            name: "west-corridor",
             color: "blue",
             width: corridorWidth2,
             deep: 1,
             x: corridorX2,
             y: corridorY2,
-          }, "left-corridor - static room // left of the hall").then(() => {
+          }, "west-corridor - static room // west of the hall").then(() => {
             // we place a corridor
-            // starting on right of the hall
-            // and go right to the right of the manor
+            // starting on east of the hall
+            // and go right to the east of the manor
             const corridorX3 = hallX + hallRoom.width;
             const corridorY3 = hallY + 1
             const corridorWidth3 = this.manorWidth - corridorX3;
             this.addRoom({
-              name: "right-corridor",
+              name: "east-corridor",
               color: "blue",
               width: corridorWidth3,
               deep: 1,
               x: corridorX3,
               y: corridorY3,
-            }, "right-corridor - static room // right of the hall").then(() => {
+            }, "east-corridor - static room // east of the hall").then(() => {
               // we place the kitchen
-              // it is always directly on top of the right corridor next to the hall
+              // it is always directly on north of the east corridor next to the hall
               const kitchenX = corridorX3;
               const kitchenY = corridorY3 - kitchenRoom.deep;
               this.addRoom({
                 ...kitchenRoom,
                 x: kitchenX,
                 y: kitchenY,
-              }, "kitchen - static room - top of the right corridor // next to the hall").then(() => {
+              }, "kitchen - static room - north of the east corridor // next to the hall").then(() => {
                 // we place the garage
-                // it is always directly on bottom of the left corridor next to the hall
+                // it is always directly on south of the west corridor next to the hall
                 const garageX = hallX - garageRoom.width;
                 const garageY = corridorY2 + 1;
                 this.addRoom({
                   ...garageRoom,
                   x: garageX,
                   y: garageY,
-                }, "garage - static room - bottom of the left corridor // next to the hall").then(() => {
+                }, "garage - static room - south of the west corridor // next to the hall").then(() => {
                   this.generateDynamics();
                 })
               })
@@ -163,10 +164,10 @@ export default defineComponent({
       // delete existing dynamic rooms
       this.rooms = this.rooms
           .filter((room) => {
-        return !this.roomsDynamic.find((roomDynamic) => {
-          return roomDynamic.name === room.name;
-        })
-      })
+            return !this.roomsDynamic.find((roomDynamic) => {
+              return roomDynamic.name === room.name;
+            })
+          })
 
       // delete existing dynamic slots
       this.rooms = this.rooms
@@ -201,11 +202,11 @@ export default defineComponent({
                   ...slot,
                 }, `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y} - static room - slot`)
                 .then(() => {
+                  // TODO mettre un timeout pour voir la progression
                   // we pick a random room that fit exactly in the slot
-                  // the room can be rotated
                   const roomsFitting = this.roomsDynamic
                       .filter((room) => {
-                        return room.width === slot.width && room.deep === slot.deep || room.width === slot.deep && room.deep === slot.width;
+                        return room.width === slot.width && room.deep === slot.deep;
                       })
 
                   // we pick a room for this :
@@ -226,37 +227,40 @@ export default defineComponent({
                       return roomPlaced.name === room.name;
                     }).length < room.minInstances || !room.minInstances;
                   })
-                  // if no room don't match needed conditions, we pick a allowed room
+                  // if no room match needed conditions, we pick an allowed room
                   const roomsFittingNotMaxedRandom = roomsFittingNotMaxedNotMin.length
                       ? roomsFittingNotMaxedNotMin[Math.floor(Math.random() * roomsFittingNotMaxedNotMin.length)]
                       : roomsFittingNotMaxed[Math.floor(Math.random() * roomsFittingNotMaxed.length)];
 
-                  if(roomsFittingNotMaxedRandom) {
-                    // we rotate the room to fit the slot
-                    // if width and deep are different
-                    const rotation = roomsFittingNotMaxedRandom.width === slot.width ? 0 : 1;
-                    // delete the slot rooms
-                    // this.rooms = this.rooms.filter((room) => {
-                    //   return room.name !== `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
-                    // });
+                  // we loop 4 times to test all orientations
+                  const orientedRooms = [
+                    roomsFittingNotMaxedRandom,
+                    this.rotateRoom(roomsFittingNotMaxedRandom),
+                    this.rotateRoom(this.rotateRoom(roomsFittingNotMaxedRandom)),
+                    this.rotateRoom(this.rotateRoom(this.rotateRoom(roomsFittingNotMaxedRandom))),
+                  ]
 
-                    // we place the room
+                  const matchingOrientedRooms = orientedRooms.filter((orientedRoom) => {
+                    return this.testRoomWithSlot(orientedRoom, slot);
+                  })
+
+                  const placedRoom = matchingOrientedRooms.length
+                      ? matchingOrientedRooms[Math.floor(Math.random() * matchingOrientedRooms.length)]
+                      : null;
+
+
+                  if (placedRoom) {
                     placedRooms.push(roomsFittingNotMaxedRandom);
                     this.addRoom({
-                      ...roomsFittingNotMaxedRandom,
+                      ...placedRoom,
                       x: slot.x,
                       y: slot.y,
-                      width: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.width : roomsFittingNotMaxedRandom.deep,
-                      deep: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.deep : roomsFittingNotMaxedRandom.width,
-                    }, `room ${roomsFittingNotMaxedRandom.name} - dynamic room - slot`)
+                    }, `room ${placedRoom.name} - dynamic room - slot`)
                   } else {
                     this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
                   }
                 })
         )
-
-        // setTimeout(() => {
-        // }, this.demo ? this.demo / 2 / dynamicSlots.length * index : index * 100);
       })
 
       Promise.all(promises)
@@ -281,6 +285,39 @@ export default defineComponent({
           }, this.demo - this.demo / 3)
         }, this.demo / 3)
       })
+    },
+    rotateRoom(room) {
+      const orientations = ["north", "east", "south", "west"];
+      const currentOrientationIndex = orientations.indexOf(room.direction);
+      return {
+        ...room,
+        direction: orientations[(currentOrientationIndex + 1) % 4],
+        width: room.deep,
+        deep: room.width,
+        access: room.access.map((accessPoint) => {
+          const currentAccessOrientationIndex = orientations.indexOf(accessPoint.direction);
+          return {
+            ...accessPoint,
+            direction: orientations[(currentAccessOrientationIndex + 1) % 4],
+            x: room.deep - accessPoint.y - 1,
+            y: accessPoint.x,
+          }
+        })
+      }
+    },
+    testRoomWithSlot(room, slot) {
+      if (room.width === slot.width && room.deep === slot.deep) {
+        // we check if any slot access match any room access
+        const slotAccess = slot.access;
+        const roomAccess = room.access;
+        return slotAccess.some((slotAccessPoint) => {
+          return roomAccess.some((roomAccessPoint) => {
+            return slotAccessPoint.x === roomAccessPoint.x && slotAccessPoint.y === roomAccessPoint.y && slotAccessPoint.direction === roomAccessPoint.direction;
+          })
+        })
+      } else {
+        return false;
+      }
     },
     addInfo(message, color = "white") {
       this.infos.push({
@@ -368,6 +405,7 @@ export default defineComponent({
               :deep="room.deep"
               :color="room.color"
               :overlay="room.overlay"
+              :access="room.access"
           />
         </transition-group>
       </div>

@@ -3,6 +3,23 @@ export const hallRoom = {
   color: "#ff0000",
   width: 3,
   deep: 5,
+  access: [
+    {
+      x: 0,
+      y: 1,
+      direction: "west",
+    },
+    {
+      x: 1,
+      y: 0,
+      direction: "north",
+    },
+    {
+      x: 2,
+      y: 1,
+      direction: "east",
+    }
+  ]
 }
 
 // kitchen room
@@ -12,15 +29,29 @@ export const kitchenRoom = {
   color: "#ff8000",
   width: 3,
   deep: 3,
+  access: [
+    {
+      x: 1,
+      y: 2,
+      direction: "south",
+    }
+  ]
 }
 
 // garage room
 // this room is a static room
 export const garageRoom = {
   name: "garage",
-  color: "#ffff00",
+  color: "#919100",
   width: 3,
   deep: 3,
+  access: [
+    {
+      x: 2,
+      y: 0,
+      direction: "north",
+    }
+  ]
 }
 
 // DYNAMIC ROOMS
@@ -30,48 +61,139 @@ export const dynamicSlots = [
     deep: 1,
     x: 3,
     y: 4,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "east",
+      }
+    ]
   },
   {
     width: 1,
     deep: 1,
     x: 5,
-    y: 3
+    y: 3,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "west",
+      }
+    ]
   },
   {
     width: 1,
     deep: 1,
     x: 5,
-    y: 4
+    y: 4,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "west",
+      }
+    ]
   },
   {
     width: 2,
     deep: 2,
     x: 8,
     y: 7,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "north",
+      },
+      {
+        x: 1,
+        y: 0,
+        direction: "north",
+      }
+    ]
   },
   {
     width: 2,
     deep: 2,
     x: 5,
     y: 1,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "west",
+      },
+      {
+        x: 0,
+        y: 1,
+        direction: "west",
+      },
+    ]
   },
   {
     width: 2,
     deep: 3,
     x: 6,
     y: 7,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "north",
+      },
+      {
+        x: 1,
+        y: 0,
+        direction: "north",
+      },
+    ]
   },
   {
     width: 3,
     deep: 2,
     x: 0,
     y: 4,
+    access: [
+      {
+        x: 0,
+        y: 1,
+        direction: "south",
+      },
+      {
+        x: 1,
+        y: 1,
+        direction: "south",
+      },
+      {
+        x: 2,
+        y: 1,
+        direction: "south",
+      },
+    ]
   },
   {
     width: 3,
     deep: 3,
     x: 1,
     y: 1,
+    access: [
+      {
+        x: 2,
+        y: 0,
+        direction: "east",
+      },
+      {
+        x: 2,
+        y: 1,
+        direction: "east",
+      },
+      {
+        x: 2,
+        y: 2,
+        direction: "east",
+      }
+    ]
   },
 ];
 
@@ -80,20 +202,54 @@ export const dynamicSlots = [
 export const salonRoom = {
   name: "salon",
   color: "#ff00ff",
-  width: 3,
-  deep: 3,
   sizes: [
     {
       width: 3,
       deep: 3,
+      access: [
+        {
+          direction: "south",
+          x: 1,
+          y: 2,
+        },
+        {
+          direction: "east",
+          x: 2,
+          y: 1,
+        },
+      ]
     },
     {
       width: 3,
       deep: 2,
+      access: [
+        {
+          direction: "south",
+          x: 1,
+          y: 1,
+        },
+        {
+          direction: "east",
+          x: 2,
+          y: 0,
+        },
+      ]
     },
     {
       width: 2,
       deep: 3,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 2,
+        },
+        {
+          direction: "east",
+          x: 1,
+          y: 1,
+        },
+      ]
     },
   ],
   minInstances: 1,
@@ -109,14 +265,50 @@ export const restRoom = {
     {
       width: 3,
       deep: 3,
+      access: [
+        {
+          direction: "south",
+          x: 1,
+          y: 2,
+        },
+        {
+          direction: "east",
+          x: 2,
+          y: 1,
+        },
+      ]
     },
     {
       width: 3,
       deep: 2,
+      access: [
+        {
+          direction: "south",
+          x: 1,
+          y: 1,
+        },
+        {
+          direction: "east",
+          x: 2,
+          y: 0,
+        },
+      ]
     },
     {
       width: 2,
       deep: 3,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 2,
+        },
+        {
+          direction: "east",
+          x: 1,
+          y: 1,
+        },
+      ]
     },
   ],
   minInstances: 2,
@@ -132,14 +324,50 @@ export const bathroomRoom = {
     {
       width: 2,
       deep: 2,
+      access: [
+        {
+          direction: "south",
+          x: 1,
+          y: 1,
+        },
+        {
+          direction: "east",
+          x: 1,
+          y: 1,
+        },
+      ]
     },
     {
       width: 2,
       deep: 1,
+      access: [
+        {
+          direction: "south",
+          x: 1,
+          y: 0,
+        },
+        {
+          direction: "east",
+          x: 1,
+          y: 0,
+        },
+      ]
     },
     {
       width: 1,
       deep: 2,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 1,
+        },
+        {
+          direction: "east",
+          x: 0,
+          y: 1,
+        },
+      ]
     },
   ],
   minInstances: 1,
@@ -155,14 +383,50 @@ export const officeRoom = {
     {
       width: 2,
       deep: 2,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 1,
+        },
+        {
+          direction: "east",
+          x: 1,
+          y: 1,
+        },
+      ]
     },
     {
       width: 2,
       deep: 1,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 0,
+        },
+        {
+          direction: "east",
+          x: 1,
+          y: 0,
+        },
+      ]
     },
     {
       width: 1,
       deep: 2,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 1,
+        },
+        {
+          direction: "east",
+          x: 0,
+          y: 1,
+        },
+      ]
     },
   ],
   minInstances: 1,
@@ -178,6 +442,13 @@ export const toiletRoom = {
     {
       width: 1,
       deep: 1,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 0,
+        },
+      ]
     },
   ],
   minInstances: 1,
@@ -191,6 +462,13 @@ export const closetRoom = {
     {
       width: 1,
       deep: 1,
+      access: [
+        {
+          direction: "south",
+          x: 0,
+          y: 0,
+        },
+      ]
     }
   ],
 }

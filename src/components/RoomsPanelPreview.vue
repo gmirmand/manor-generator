@@ -36,6 +36,7 @@ export default defineComponent({
               :deep="room.deep"
               :color="room.color"
               :overlay="room.overlay"
+              :access="room.access"
           />
         </template>
       </div>
@@ -61,6 +62,7 @@ export default defineComponent({
                   :deep="roomSize.deep"
                   :color="room.color"
                   :overlay="room.overlay"
+                  :access="roomSize.access"
               />
             </template>
           </div>
