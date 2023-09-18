@@ -202,17 +202,13 @@ export default defineComponent({
                   ...slot,
                 }, `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y} - static room - slot`)
                 .then(() => {
-                  // TODO mettre un timeout pour voir la progression
                   // we filter rooms that have the same size as the slot
                   const roomsFitting = this.roomsDynamic
                       .filter((room) => {
                         return room.width === slot.width && room.deep === slot.deep || room.width === slot.deep && room.deep === slot.width;
                       })
 
-                  // we pick a room for this :
-                  // we first check room that have not reached minInstances
-                  // if no room, we pick a random room that have not reached maxInstances
-                  // if no room, we pick a random room
+                  // all rooms that don't reached the maxInstances
                   const roomsFittingNotMaxed = roomsFitting.filter((room) => {
                     return !placedRooms.filter((roomPlaced) => {
                       return roomPlaced.name === room.name;
@@ -220,45 +216,48 @@ export default defineComponent({
                       return roomPlaced.name === room.name;
                     }).length < room.maxInstances || !room.maxInstances;
                   })
+                  // all rooms that don't reached the minInstances
                   const roomsFittingNotMin = roomsFitting.filter((room) => {
                     return !placedRooms.filter((roomPlaced) => {
                       return roomPlaced.name === room.name;
                     }).length || placedRooms.filter((roomPlaced) => {
                       return roomPlaced.name === room.name;
-                    }).length < room.minInstances || !room.minInstances;
+                    }).length < room.minInstances;
                   })
 
+                  // we prioritize rooms that don't reached the minInstances
+                  // if no rooms, we take rooms that don't reached the maxInstances
                   const placeableRooms = roomsFittingNotMin.length
                       ? roomsFittingNotMin
                       : roomsFittingNotMaxed;
 
-                  const placeableRoomRandom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
-                  // we loop 4 times to test all orientations
-                  const orientedRooms = [
-                    placeableRoomRandom,
-                    this.rotateRoom(placeableRoomRandom),
-                    this.rotateRoom(this.rotateRoom(placeableRoomRandom)),
-                    this.rotateRoom(this.rotateRoom(this.rotateRoom(placeableRoomRandom))),
-                  ]
+                  if (placeableRooms.length === 0) {
+                    this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
+                  } else {
+                    // we pick a random room between the placeable rooms
+                    const placeableRoomRandom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
 
-                  const matchingOrientedRooms = orientedRooms.filter((orientedRoom) => {
-                    return this.testRoomWithSlot(orientedRoom, slot);
-                  })
+                    // we loop 4 times the room to test access/size matching
+                    const orientedRooms = [
+                      placeableRoomRandom,
+                      this.rotateRoom(placeableRoomRandom),
+                      this.rotateRoom(this.rotateRoom(placeableRoomRandom)),
+                      this.rotateRoom(this.rotateRoom(this.rotateRoom(placeableRoomRandom))),
+                    ]
 
-                  const placedRoom = matchingOrientedRooms.length
-                      ? matchingOrientedRooms[Math.floor(Math.random() * matchingOrientedRooms.length)]
-                      : null;
+                    const matchingOrientedRooms = orientedRooms.filter((orientedRoom) => {
+                      return this.testRoomWithSlot(orientedRoom, slot);
+                    })
 
+                    // we pick a random room between the matching rooms
+                    const placedRoom = matchingOrientedRooms[Math.floor(Math.random() * matchingOrientedRooms.length)]
 
-                  if (placedRoom) {
                     placedRooms.push(placedRoom);
                     this.addRoom({
                       ...placedRoom,
                       x: slot.x,
                       y: slot.y,
                     }, `room ${placedRoom.name} - dynamic room - slot`)
-                  } else {
-                    this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
                   }
                 })
         )
