@@ -50,7 +50,8 @@ export default defineComponent({
   methods: {
     reset() {
       // clear all setTimeout
-      let id = window.setTimeout(function () {}, 0);
+      let id = window.setTimeout(function () {
+      }, 0);
       while (id--) {
         window.clearTimeout(id); // will do nothing if no timeout with id is present
       }
@@ -63,6 +64,8 @@ export default defineComponent({
       this.setupMatrix();
     },
     setupMatrix() {
+      this.$emit("update:canRegenerate", false);
+
       // we generate the matrix
       for (let y = 0; y < this.manorDeep; y++) {
         for (let x = 0; x < this.manorWidth; x++) {
@@ -155,13 +158,24 @@ export default defineComponent({
       })
     },
     generateDynamics() {
-      const placedRooms =  [];
+      const placedRooms = [];
+      const promises = [];
       // delete existing dynamic rooms
-      this.rooms = this.rooms.filter((room) => {
+      this.rooms = this.rooms
+          .filter((room) => {
         return !this.roomsDynamic.find((roomDynamic) => {
           return roomDynamic.name === room.name;
         })
       })
+
+      // delete existing dynamic slots
+      this.rooms = this.rooms
+          .filter((room) => {
+            return !dynamicSlots.find((slot) => {
+              return room.name === `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
+            })
+          })
+
 
       // we define room slots that we will populate with rooms picked randomly between non-static rooms
       // we place two 2x2 slots
@@ -176,69 +190,79 @@ export default defineComponent({
       // we place a 3x3 at 1-1
       // we place the slots
       dynamicSlots.forEach((slot, index) => {
-        setTimeout(() => {
-          this.addRoom({
-                name: `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`,
-                overlay: true,
-                color: "purple",
-                ...slot,
-              }, `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y} - static room - slot`)
-              .then(() => {
-                // we pick a random room that fit exactly in the slot
-                // the room can be rotated
-                const roomsFitting = this.roomsDynamic
-                    .filter((room) => {
-                      return room.width === slot.width && room.deep === slot.deep || room.width === slot.deep && room.deep === slot.width;
-                    })
+        promises.push(
+            this.addRoom({
+                  name: `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`,
+                  overlay: true,
+                  color: "purple",
+                  ...slot,
+                }, `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y} - static room - slot`)
+                .then(() => {
+                  // we pick a random room that fit exactly in the slot
+                  // the room can be rotated
+                  const roomsFitting = this.roomsDynamic
+                      .filter((room) => {
+                        return room.width === slot.width && room.deep === slot.deep || room.width === slot.deep && room.deep === slot.width;
+                      })
 
-                // we pick a room for this :
-                // we first check room that have not reached minInstances
-                // if no room, we pick a random room that have not reached maxInstances
-                // if no room, we pick a random room
-                const roomsFittingNotMaxed = roomsFitting.filter((room) => {
-                  return !placedRooms.filter((roomPlaced) => {
-                    return roomPlaced.name === room.name;
-                  }).length || placedRooms.filter((roomPlaced) => {
-                    return roomPlaced.name === room.name;
-                  }).length < room.maxInstances;
+                  // we pick a room for this :
+                  // we first check room that have not reached minInstances
+                  // if no room, we pick a random room that have not reached maxInstances
+                  // if no room, we pick a random room
+                  const roomsFittingNotMaxed = roomsFitting.filter((room) => {
+                    return !placedRooms.filter((roomPlaced) => {
+                      return roomPlaced.name === room.name;
+                    }).length || placedRooms.filter((roomPlaced) => {
+                      return roomPlaced.name === room.name;
+                    }).length < room.maxInstances;
+                  })
+                  const roomsFittingNotMaxedNotMin = roomsFittingNotMaxed.filter((room) => {
+                    return !placedRooms.filter((roomPlaced) => {
+                      return roomPlaced.name === room.name;
+                    }).length || placedRooms.filter((roomPlaced) => {
+                      return roomPlaced.name === room.name;
+                    }).length < room.minInstances;
+                  })
+                  // if no room don't match needed conditions, we pick a allowed room
+                  const roomsFittingNotMaxedRandom = roomsFittingNotMaxedNotMin.length
+                      ? roomsFittingNotMaxedNotMin[Math.floor(Math.random() * roomsFittingNotMaxedNotMin.length)]
+                      : roomsFittingNotMaxed[Math.floor(Math.random() * roomsFittingNotMaxed.length)];
+
+                  // we rotate the room to fit the slot
+                  // if width and deep are different
+                  const rotation = roomsFittingNotMaxedRandom.width === slot.width ? 0 : 1;
+                  // delete the slot rooms
+                  // this.rooms = this.rooms.filter((room) => {
+                  //   return room.name !== `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
+                  // });
+
+                  // we place the room
+                  placedRooms.push(roomsFittingNotMaxedRandom);
+                  this.addRoom({
+                    ...roomsFittingNotMaxedRandom,
+                    x: slot.x,
+                    y: slot.y,
+                    width: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.width : roomsFittingNotMaxedRandom.deep,
+                    deep: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.deep : roomsFittingNotMaxedRandom.width,
+                  }, `room ${roomsFittingNotMaxedRandom.name} - dynamic room - slot`)
                 })
-                const roomsFittingNotMaxedNotMin = roomsFittingNotMaxed.filter((room) => {
-                  return !placedRooms.filter((roomPlaced) => {
-                    return roomPlaced.name === room.name;
-                  }).length || placedRooms.filter((roomPlaced) => {
-                    return roomPlaced.name === room.name;
-                  }).length < room.minInstances;
-                })
-                // if no room don't match needed conditions, we pick a allowed room
-                const roomsFittingNotMaxedRandom = roomsFittingNotMaxedNotMin.length
-                    ? roomsFittingNotMaxedNotMin[Math.floor(Math.random() * roomsFittingNotMaxedNotMin.length)]
-                    : roomsFittingNotMaxed[Math.floor(Math.random() * roomsFittingNotMaxed.length)];
+        )
 
-                // we rotate the room to fit the slot
-                // if width and deep are different
-                const rotation = roomsFittingNotMaxedRandom.width === slot.width ? 0 : 1;
-                // delete the slot rooms
-                this.rooms = this.rooms.filter((room) => {
-                  return room.name !== `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
-                });
-
-                // we place the room
-                placedRooms.push(roomsFittingNotMaxedRandom);
-                this.addRoom({
-                  ...roomsFittingNotMaxedRandom,
-                  x: slot.x,
-                  y: slot.y,
-                  width: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.width : roomsFittingNotMaxedRandom.deep,
-                  deep: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.deep : roomsFittingNotMaxedRandom.width,
-                }, `room ${roomsFittingNotMaxedRandom.name} - dynamic room - slot`)
-              })
-        }, this.demo ? this.demo / 2 / dynamicSlots.length * index : index * 100);
+        // setTimeout(() => {
+        // }, this.demo ? this.demo / 2 / dynamicSlots.length * index : index * 100);
       })
+
+      Promise.all(promises)
+          .then(() => {
+            this.end();
+          })
     },
-// it's a promise that wait 1s to see the evolution
-    addRoom(room, message) {
-      this.addInfo(message, room.color);
+
+    // it's a promise that wait 1s to see the evolution
+    addRoom: async function (room, message) {
       return new Promise((resolve) => {
+        this.addInfo(message, room.color);
+
         setTimeout(() => {
           this.rooms.push(room);
           this.$nextTick(() => {
@@ -263,7 +287,7 @@ export default defineComponent({
     },
     end() {
       // we unchecked the demo in the parent
-      // this.$emit("update:demoBoolean", false);
+      this.$emit("update:canRegenerate", true);
     },
   },
 
@@ -336,6 +360,7 @@ export default defineComponent({
               :width="room.width"
               :deep="room.deep"
               :color="room.color"
+              :overlay="room.overlay"
           />
         </transition-group>
       </div>
@@ -363,6 +388,7 @@ export default defineComponent({
 .info-enter-active, .info-leave-active {
   transition: all 1s;
 }
+
 .info-enter-from, .info-leave-to {
   opacity: 0;
   transform: translateX(-20px);

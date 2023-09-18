@@ -14,6 +14,7 @@ export default defineComponent({
       manorDeep: 10,
       demo: 5000,
       demoBoolean: true,
+      canRegenerate: false,
     }
   },
 })
@@ -40,10 +41,10 @@ export default defineComponent({
         <!-- regenerate -->
         <div class="flex flex-col">
           <button
-              :disabled="demoBoolean"
+              :disabled="!canRegenerate"
               @click="$refs.manor.generateDynamics()"
               class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
-              :class="{'opacity-50 cursor-not-allowed': demoBoolean}" >
+              :class="{'opacity-50 cursor-not-allowed': !canRegenerate}" >
             Regenerate
           </button>
         </div>
@@ -59,7 +60,7 @@ export default defineComponent({
           :manorWidth="manorWidth"
           :manorDeep="manorDeep"
           :demo="demoBoolean ? demo : 0"
-          @update:demoBoolean="demoBoolean = $event"
+          @update:canRegenerate="canRegenerate = $event"
       />
     </div>
   </div>

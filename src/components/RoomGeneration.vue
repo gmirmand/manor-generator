@@ -16,7 +16,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="absolute text-xs font-bold inline-flex justify-center items-start leading-none outline outline-4 -outline-offset-4"
+  <div class="absolute text-xs inline-flex justify-center items-start leading-none outline outline-4 -outline-offset-4 italic"
        :style="{
             top: `${(y) * 40}px`,
             left: `${(x) * 40}px`,
@@ -26,7 +26,12 @@ export default defineComponent({
             fontSize: `${Math.max(6, 16 * Math.min(width / 5, deep / 5) * (1 - (name.length * 0.01)))}px`,
             }
             ">
-    <span class="bg-white mt-2">{{ name }}</span>
+    <span
+        class="mt-2"
+        :class="{'bg-white font-bold border border-black p-1': !overlay}"
+    >
+      {{ name }}
+    </span>
 
     <template v-for="xSlot in width">
       <template
