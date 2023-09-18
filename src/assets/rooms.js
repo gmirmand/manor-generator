@@ -26,6 +26,24 @@ export const garageRoom = {
 // DYNAMIC ROOMS
 export const dynamicSlots = [
   {
+    width: 1,
+    deep: 1,
+    x: 3,
+    y: 4,
+  },
+  {
+    width: 1,
+    deep: 1,
+    x: 5,
+    y: 3
+  },
+  {
+    width: 1,
+    deep: 1,
+    x: 5,
+    y: 4
+  },
+  {
     width: 2,
     deep: 2,
     x: 8,

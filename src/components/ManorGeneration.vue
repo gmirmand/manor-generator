@@ -189,6 +189,9 @@ export default defineComponent({
       // we place a 3x2 at 0-4
       // we place a 3x3 at 1-1
       // we place the slots
+
+      // we shuffle the dynamicSlots
+      dynamicSlots.sort(() => Math.random() - 0.5);
       dynamicSlots.forEach((slot, index) => {
         promises.push(
             this.addRoom({
@@ -228,23 +231,27 @@ export default defineComponent({
                       ? roomsFittingNotMaxedNotMin[Math.floor(Math.random() * roomsFittingNotMaxedNotMin.length)]
                       : roomsFittingNotMaxed[Math.floor(Math.random() * roomsFittingNotMaxed.length)];
 
-                  // we rotate the room to fit the slot
-                  // if width and deep are different
-                  const rotation = roomsFittingNotMaxedRandom.width === slot.width ? 0 : 1;
-                  // delete the slot rooms
-                  // this.rooms = this.rooms.filter((room) => {
-                  //   return room.name !== `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
-                  // });
+                  if(roomsFittingNotMaxedRandom) {
+                    // we rotate the room to fit the slot
+                    // if width and deep are different
+                    const rotation = roomsFittingNotMaxedRandom.width === slot.width ? 0 : 1;
+                    // delete the slot rooms
+                    // this.rooms = this.rooms.filter((room) => {
+                    //   return room.name !== `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
+                    // });
 
-                  // we place the room
-                  placedRooms.push(roomsFittingNotMaxedRandom);
-                  this.addRoom({
-                    ...roomsFittingNotMaxedRandom,
-                    x: slot.x,
-                    y: slot.y,
-                    width: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.width : roomsFittingNotMaxedRandom.deep,
-                    deep: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.deep : roomsFittingNotMaxedRandom.width,
-                  }, `room ${roomsFittingNotMaxedRandom.name} - dynamic room - slot`)
+                    // we place the room
+                    placedRooms.push(roomsFittingNotMaxedRandom);
+                    this.addRoom({
+                      ...roomsFittingNotMaxedRandom,
+                      x: slot.x,
+                      y: slot.y,
+                      width: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.width : roomsFittingNotMaxedRandom.deep,
+                      deep: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.deep : roomsFittingNotMaxedRandom.width,
+                    }, `room ${roomsFittingNotMaxedRandom.name} - dynamic room - slot`)
+                  } else {
+                    this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
+                  }
                 })
         )
 
