@@ -81,8 +81,6 @@ export default defineComponent({
 
       // we place the hall
       // he always is at the middle south
-      // we calculate north west coordinates
-      // based on the width and deep and matrix size
       const hallX = Math.floor((this.manorWidth - hallRoom.width) / 2);
       const hallY = this.manorDeep - hallRoom.deep;
       this.addRoom({
@@ -92,7 +90,6 @@ export default defineComponent({
       }, "add hall - static room // middle south").then(() => {
         // we place a corridor
         // starting on north of the hall
-        // and go up to the north of the manor
         const corridorX = hallX + 1;
         const corridorY = 0
         const corridorDeep = this.manorDeep - hallRoom.deep;
@@ -106,7 +103,6 @@ export default defineComponent({
         }, "north-corridor - static room // north of the hall").then(() => {
           // we place a corridor
           // starting on west of the hall
-          // and go to the west of the manor
           const corridorX2 = 0;
           const corridorY2 = hallY + 1
           const corridorWidth2 = hallX;
@@ -120,7 +116,6 @@ export default defineComponent({
           }, "west-corridor - static room // west of the hall").then(() => {
             // we place a corridor
             // starting on east of the hall
-            // and go right to the east of the manor
             const corridorX3 = hallX + hallRoom.width;
             const corridorY3 = hallY + 1
             const corridorWidth3 = this.manorWidth - corridorX3;
@@ -177,28 +172,17 @@ export default defineComponent({
             })
           })
 
-
-      // we define room slots that we will populate with rooms picked randomly between non-static rooms
-      // we place two 2x2 slots
-      // two 3x2 slots
-      // and one 3x3 slot
-
-      // we place then manually
-      // we place a 2x2 at 8-7
-      // we place a 2x2 at 5-1
-      // we place a 2x3 at 6-7
-      // we place a 3x2 at 0-4
-      // we place a 3x3 at 1-1
-      // we place the slots
-
       // we shuffle the dynamicSlots
       dynamicSlots.sort(() => Math.random() - 0.5);
+
+      // we place the dynamic slots
       dynamicSlots.forEach((slot, index) => {
         promises.push(
             new Promise((resolve) => {
               setTimeout(() => {
                 this.addInfo(`Starting process for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "blue");
 
+                // we place the slot
                 this.addRoom({
                       name: `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`,
                       overlay: true,
@@ -209,9 +193,12 @@ export default defineComponent({
                       setTimeout(() => {
                         this.addInfo(`Checking rooms for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "green");
 
+                        // we check rooms fitting the slot
                         const roomsFitting = this.roomsDynamic.filter((room) => {
                           return room.width === slot.width && room.deep === slot.deep || room.width === slot.deep && room.deep === slot.width;
                         });
+
+                        // we get rooms that hasn't reached maxInstances
                         const roomsFittingNotMaxed = roomsFitting.filter((room) => {
                           return !placedRooms.filter((roomPlaced) => {
                             return roomPlaced.name === room.name;
@@ -219,6 +206,8 @@ export default defineComponent({
                             return roomPlaced.name === room.name;
                           }).length < room.maxInstances || !room.maxInstances;
                         });
+
+                        // we get rooms that hasn't reached minInstances
                         const roomsFittingNotMin = roomsFitting.filter((room) => {
                           return !placedRooms.filter((roomPlaced) => {
                             return roomPlaced.name === room.name;
@@ -226,12 +215,18 @@ export default defineComponent({
                             return roomPlaced.name === room.name;
                           }).length < room.minInstances;
                         });
+
+                        // we prioritize rooms that hasn't reached minInstances
+                        // if no room is found, we take rooms that hasn't reached maxInstances
                         const placeableRooms = roomsFittingNotMin.length ? roomsFittingNotMin : roomsFittingNotMaxed;
 
                         if (placeableRooms.length === 0) {
                           this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
                         } else {
+                          // we pick a random room in placeableRooms
                           const placeableRoomRandom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
+
+                          // we test this room orientation with the slot (matching access and size)
                           const orientedRooms = [
                             placeableRoomRandom,
                             this.rotateRoom(placeableRoomRandom),
@@ -241,7 +236,11 @@ export default defineComponent({
                           const matchingOrientedRooms = orientedRooms.filter((orientedRoom) => {
                             return this.testRoomWithSlot(orientedRoom, slot);
                           });
+
+                          // we pick a random room in matchingOrientedRooms
                           const placedRoom = matchingOrientedRooms[Math.floor(Math.random() * matchingOrientedRooms.length)];
+
+                          // we add the room to the placedRooms
                           placedRooms.push(placedRoom);
                           this.addRoom({
                             ...placedRoom,
