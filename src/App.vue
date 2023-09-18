@@ -22,7 +22,9 @@ export default defineComponent({
 <template>
   <div>
     <div class="flex justify-center items-center flex-col">
-      <h1>Manor Generator</h1>
+      <h1 class="text-4xl font-bold mb-4 text-center">
+        Manor Generator
+      </h1>
       <ManorGeneration
           ref="manor"
           :manorWidth="manorWidth"
@@ -34,7 +36,6 @@ export default defineComponent({
 
     <!--  controllers  -->
     <!--  change the width and deep of the manor -->
-    <!--  and the rooms will be generated -->
     <div class="flex justify-center items-center">
 <!--      <div class="flex flex-col">-->
 <!--        <label for="width">Width</label>-->
