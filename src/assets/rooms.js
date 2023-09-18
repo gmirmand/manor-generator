@@ -217,6 +217,16 @@ export const salonRoom = {
           x: 2,
           y: 1,
         },
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        }
       ]
     },
     {
@@ -249,6 +259,16 @@ export const salonRoom = {
           x: 1,
           y: 1,
         },
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        }
       ]
     },
   ],
@@ -308,6 +328,16 @@ export const restRoom = {
           x: 1,
           y: 1,
         },
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        }
       ]
     },
   ],
@@ -335,6 +365,16 @@ export const bathroomRoom = {
           x: 1,
           y: 1,
         },
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        }
       ]
     },
     {
@@ -394,6 +434,16 @@ export const officeRoom = {
           x: 1,
           y: 1,
         },
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        }
       ]
     },
     {
@@ -450,6 +500,39 @@ export const toiletRoom = {
         },
       ]
     },
+    {
+      width: 1,
+      deep: 1,
+      access: [
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        },
+      ]
+    },
+    {
+      width: 1,
+      deep: 1,
+      access: [
+        {
+          direction: "east",
+          x: 0,
+          y: 0,
+        },
+      ]
+    },
+    {
+      width: 1,
+      deep: 1,
+      access: [
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+      ]
+    },
   ],
   minInstances: 1,
   maxInstances: 1,
@@ -469,7 +552,40 @@ export const closetRoom = {
           y: 0,
         },
       ]
-    }
+    },
+    {
+      width: 1,
+      deep: 1,
+      access: [
+        {
+          direction: "west",
+          x: 0,
+          y: 0,
+        },
+      ]
+    },
+    {
+      width: 1,
+      deep: 1,
+      access: [
+        {
+          direction: "east",
+          x: 0,
+          y: 0,
+        },
+      ]
+    },
+    {
+      width: 1,
+      deep: 1,
+      access: [
+        {
+          direction: "north",
+          x: 0,
+          y: 0,
+        },
+      ]
+    },
   ],
 }
 

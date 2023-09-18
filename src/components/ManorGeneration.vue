@@ -195,7 +195,7 @@ export default defineComponent({
 
                         // we check rooms fitting the slot
                         const roomsFitting = this.roomsDynamic.filter((room) => {
-                          return room.width === slot.width && room.deep === slot.deep || room.width === slot.deep && room.deep === slot.width;
+                          return room.width === slot.width && room.deep === slot.deep && this.testRoomWithSlot(room, slot);
                         });
 
                         // we get rooms that hasn't reached maxInstances
@@ -224,21 +224,7 @@ export default defineComponent({
                           this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
                         } else {
                           // we pick a random room in placeableRooms
-                          const placeableRoomRandom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
-
-                          // we test this room orientation with the slot (matching access and size)
-                          const orientedRooms = [
-                            placeableRoomRandom,
-                            this.rotateRoom(placeableRoomRandom),
-                            this.rotateRoom(this.rotateRoom(placeableRoomRandom)),
-                            this.rotateRoom(this.rotateRoom(this.rotateRoom(placeableRoomRandom))),
-                          ];
-                          const matchingOrientedRooms = orientedRooms.filter((orientedRoom) => {
-                            return this.testRoomWithSlot(orientedRoom, slot);
-                          });
-
-                          // we pick a random room in matchingOrientedRooms
-                          const placedRoom = matchingOrientedRooms[Math.floor(Math.random() * matchingOrientedRooms.length)];
+                          const placedRoom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
 
                           // we add the room to the placedRooms
                           placedRooms.push(placedRoom);
@@ -280,25 +266,6 @@ export default defineComponent({
           }, this.demo - this.demo / 3)
         }, this.demo / 3)
       })
-    },
-    rotateRoom(room) {
-      const orientations = ["north", "east", "south", "west"];
-      const currentOrientationIndex = orientations.indexOf(room.direction);
-      return {
-        ...room,
-        direction: orientations[(currentOrientationIndex + 1) % 4],
-        width: room.deep,
-        deep: room.width,
-        access: room.access.map((accessPoint) => {
-          const currentAccessOrientationIndex = orientations.indexOf(accessPoint.direction);
-          return {
-            ...accessPoint,
-            direction: orientations[(currentAccessOrientationIndex + 1) % 4],
-            x: room.deep - accessPoint.y - 1,
-            y: accessPoint.x,
-          }
-        })
-      }
     },
     testRoomWithSlot(room, slot) {
       if (room.width === slot.width && room.deep === slot.deep) {
