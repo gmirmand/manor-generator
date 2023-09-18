@@ -181,7 +181,18 @@ export const toiletRoom = {
     },
   ],
   minInstances: 1,
-  maxInstances: 2,
+  maxInstances: 1,
+}
+
+export const closetRoom = {
+  name: "closet",
+  color: "#008000",
+  sizes: [
+    {
+      width: 1,
+      deep: 1,
+    }
+  ],
 }
 
 export const staticRooms = [
@@ -196,6 +207,7 @@ export const dynamicRooms = [
   bathroomRoom,
   officeRoom,
   toiletRoom,
+  closetRoom,
 ];
 
 export default [

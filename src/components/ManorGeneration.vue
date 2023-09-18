@@ -217,14 +217,14 @@ export default defineComponent({
                       return roomPlaced.name === room.name;
                     }).length || placedRooms.filter((roomPlaced) => {
                       return roomPlaced.name === room.name;
-                    }).length < room.maxInstances;
+                    }).length < room.maxInstances || !room.maxInstances;
                   })
                   const roomsFittingNotMaxedNotMin = roomsFittingNotMaxed.filter((room) => {
                     return !placedRooms.filter((roomPlaced) => {
                       return roomPlaced.name === room.name;
                     }).length || placedRooms.filter((roomPlaced) => {
                       return roomPlaced.name === room.name;
-                    }).length < room.minInstances;
+                    }).length < room.minInstances || !room.minInstances;
                   })
                   // if no room don't match needed conditions, we pick a allowed room
                   const roomsFittingNotMaxedRandom = roomsFittingNotMaxedNotMin.length

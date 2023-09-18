@@ -49,7 +49,7 @@ export default defineComponent({
         <template v-for="room in dynamicRooms">
           <div class="border border-dashed p-4 m-2">
             <h4 class="text-lg">
-              {{ room.name }} - {{ room.sizes.length }} size(s) - min {{ room.minInstances }} - max {{ room.maxInstances }}
+              {{ room.name }} - min:{{ room.minInstances || 'none' }} - max:{{ room.maxInstances || 'none' }}
             </h4>
             <template v-for="roomSize in room.sizes">
               <RoomGeneration
