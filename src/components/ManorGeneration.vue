@@ -155,6 +155,7 @@ export default defineComponent({
       })
     },
     generateDynamics() {
+      const placedRooms =  [];
       // delete existing dynamic rooms
       this.rooms = this.rooms.filter((room) => {
         return !this.roomsDynamic.find((roomDynamic) => {
@@ -195,41 +196,41 @@ export default defineComponent({
                 // if no room, we pick a random room that have not reached maxInstances
                 // if no room, we pick a random room
                 const roomsFittingNotMaxed = roomsFitting.filter((room) => {
-                  return !this.rooms.filter((roomPlaced) => {
+                  return !placedRooms.filter((roomPlaced) => {
                     return roomPlaced.name === room.name;
-                  }).length || this.rooms.filter((roomPlaced) => {
+                  }).length || placedRooms.filter((roomPlaced) => {
                     return roomPlaced.name === room.name;
                   }).length < room.maxInstances;
                 })
                 const roomsFittingNotMaxedNotMin = roomsFittingNotMaxed.filter((room) => {
-                  return !this.rooms.filter((roomPlaced) => {
+                  return !placedRooms.filter((roomPlaced) => {
                     return roomPlaced.name === room.name;
-                  }).length || this.rooms.filter((roomPlaced) => {
+                  }).length || placedRooms.filter((roomPlaced) => {
                     return roomPlaced.name === room.name;
                   }).length < room.minInstances;
                 })
-                const roomsFittingNotMaxedNotMinNotMax = roomsFittingNotMaxedNotMin.length ? roomsFittingNotMaxedNotMin : roomsFittingNotMaxed;
-                const roomsFittingNotMaxedNotMinNotMaxRandom = roomsFittingNotMaxedNotMinNotMax[Math.floor(Math.random() * roomsFittingNotMaxedNotMinNotMax.length)];
+                // if no room don't match needed conditions, we pick a allowed room
+                const roomsFittingNotMaxedRandom = roomsFittingNotMaxedNotMin.length
+                    ? roomsFittingNotMaxedNotMin[Math.floor(Math.random() * roomsFittingNotMaxedNotMin.length)]
+                    : roomsFittingNotMaxed[Math.floor(Math.random() * roomsFittingNotMaxed.length)];
 
                 // we rotate the room to fit the slot
                 // if width and deep are different
-                const rotation = roomsFittingNotMaxedNotMinNotMaxRandom.width === slot.width ? 0 : 1;
+                const rotation = roomsFittingNotMaxedRandom.width === slot.width ? 0 : 1;
                 // delete the slot rooms
                 this.rooms = this.rooms.filter((room) => {
                   return room.name !== `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`;
                 });
 
                 // we place the room
+                placedRooms.push(roomsFittingNotMaxedRandom);
                 this.addRoom({
-                  ...roomsFittingNotMaxedNotMinNotMaxRandom,
+                  ...roomsFittingNotMaxedRandom,
                   x: slot.x,
                   y: slot.y,
-                  width: rotation % 2 === 0 ? roomsFittingNotMaxedNotMinNotMaxRandom.width : roomsFittingNotMaxedNotMinNotMaxRandom.deep,
-                  deep: rotation % 2 === 0 ? roomsFittingNotMaxedNotMinNotMaxRandom.deep : roomsFittingNotMaxedNotMinNotMaxRandom.width,
-                }, `room ${roomsFittingNotMaxedNotMinNotMaxRandom.name} - dynamic room - slot`)
-                    .then(() => {
-                      this.end();
-                    })
+                  width: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.width : roomsFittingNotMaxedRandom.deep,
+                  deep: rotation % 2 === 0 ? roomsFittingNotMaxedRandom.deep : roomsFittingNotMaxedRandom.width,
+                }, `room ${roomsFittingNotMaxedRandom.name} - dynamic room - slot`)
               })
         }, this.demo ? this.demo / 2 / dynamicSlots.length * index : index * 100);
       })
@@ -262,7 +263,7 @@ export default defineComponent({
     },
     end() {
       // we unchecked the demo in the parent
-      this.$emit("update:demoBoolean", false);
+      // this.$emit("update:demoBoolean", false);
     },
   },
 
