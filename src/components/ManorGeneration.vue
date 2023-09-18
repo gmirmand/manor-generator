@@ -290,9 +290,9 @@ export default defineComponent({
 
 <template>
   <div class="inline-flex flex-wrap mr-4 justify-center items-center">
-    <div ref="logs" class="mr-4 w-64 h-[300px] overflow-auto order-2">
+    <div ref="logs" class="mr-4 w-64 h-[300px] overflow-auto order-2 sm:order-1">
       Déroulement de la génération:
-      <ul class="bg-black text-white p-2 text-xs">
+      <ul class="bg-black text-white p-2 text-xs h-max">
         <transition-group name="info" tag="div">
           <li
               class="last:font-bold last:text-green-400"
@@ -308,7 +308,7 @@ export default defineComponent({
     <!-- generate a visual grid with border pointed -->
     <!-- the wall manor is 400px by 400px -->
     <!-- the grid is 40x40 -->
-    <div class="border-4 border-black inline-block sm:scale-100 scale-75 order-1">
+    <div class="border-4 border-black inline-block sm:scale-100 scale-75 order-1 sm:order-2">
       <div
           class="grid gap-0 relative"
           :style="{
@@ -343,7 +343,7 @@ export default defineComponent({
     <!-- log rooms -->
     <div
         ref="rooms-log"
-        class="ml-4 w-64 max-h-[400px] overflow-auto order-3">
+        class="ml-4 w-64 max-h-[400px] overflow-auto order-3 sm:order-3">
       <pre>{{ rooms }}</pre>
     </div>
   </div>

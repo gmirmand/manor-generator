@@ -25,6 +25,35 @@ export default defineComponent({
       <h1 class="text-4xl font-bold mb-4 text-center">
         Manor Generator
       </h1>
+
+      <!--  controllers  -->
+      <!--  change the width and deep of the manor -->
+      <div class="flex justify-center items-center mb-4">
+        <!--      <div class="flex flex-col">-->
+        <!--        <label for="width">Width</label>-->
+        <!--        <input type="number" id="width" v-model="manorWidth"/>-->
+        <!--      </div>-->
+        <!--      <div class="flex flex-col">-->
+        <!--        <label for="deep">Deep</label>-->
+        <!--        <input type="number" id="deep" v-model="manorDeep"/>-->
+        <!--      </div>-->
+        <!-- regenerate -->
+        <div class="flex flex-col">
+          <button
+              :disabled="demoBoolean"
+              @click="$refs.manor.generateDynamics()"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
+              :class="{'opacity-50 cursor-not-allowed': demoBoolean}" >
+            Regenerate
+          </button>
+        </div>
+        <div class="flex flex-col">
+          <label for="demo">Demo: {{ demo }}ms</label>
+          <input type="range" id="demo" v-model="demo" min="0" max="10000" step="100" class="mb-2"/>
+          <input type="checkbox" id="demo" v-model="demoBoolean"/>
+        </div>
+      </div>
+
       <ManorGeneration
           ref="manor"
           :manorWidth="manorWidth"
@@ -32,34 +61,6 @@ export default defineComponent({
           :demo="demoBoolean ? demo : 0"
           @update:demoBoolean="demoBoolean = $event"
       />
-    </div>
-
-    <!--  controllers  -->
-    <!--  change the width and deep of the manor -->
-    <div class="flex justify-center items-center">
-<!--      <div class="flex flex-col">-->
-<!--        <label for="width">Width</label>-->
-<!--        <input type="number" id="width" v-model="manorWidth"/>-->
-<!--      </div>-->
-<!--      <div class="flex flex-col">-->
-<!--        <label for="deep">Deep</label>-->
-<!--        <input type="number" id="deep" v-model="manorDeep"/>-->
-<!--      </div>-->
-      <!-- regenerate -->
-      <div class="flex flex-col">
-        <button
-            :disabled="demoBoolean"
-            @click="$refs.manor.generateDynamics()"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
-            :class="{'opacity-50 cursor-not-allowed': demoBoolean}" >
-          Regenerate
-        </button>
-      </div>
-      <div class="flex flex-col">
-        <label for="demo">Demo: {{ demo }}ms</label>
-        <input type="range" id="demo" v-model="demo" min="0" max="10000" step="100" class="mb-2"/>
-        <input type="checkbox" id="demo" v-model="demoBoolean"/>
-      </div>
     </div>
   </div>
 
