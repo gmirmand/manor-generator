@@ -22,7 +22,7 @@ export default defineComponent({
   },
   data() {
     return {
-      slotMatrix: [],
+      matrix: [],
       rooms: [],
       infos: [],
     }
@@ -58,7 +58,7 @@ export default defineComponent({
       }
 
       // reset
-      this.slotMatrix = [];
+      this.matrix = [];
       this.rooms = [];
       this.infos = [];
 
@@ -68,82 +68,65 @@ export default defineComponent({
       this.$emit("update:canRegenerate", false);
 
       // we generate the matrix
+      // [[{x:0, y:0}][{x:1, y:0}][{x:2, y:0}]]
+      // [[{x:0, y:1}][{x:1, y:1}][{x:2, y:1}]]
+      // [[{x:0, y:2}][{x:1, y:2}][{x:2, y:2}]]
+
       for (let y = 0; y < this.manorDeep; y++) {
+        this.matrix.push([]);
         for (let x = 0; x < this.manorWidth; x++) {
-          this.slotMatrix.push({
-            id: `${x}-${y}`,
-            name: `${x}-${y}`,
+          this.matrix[y].push({
             x,
             y,
           })
         }
       }
 
-      // we place the hall
-      // he always is at the middle south
-      const hallX = Math.floor((this.manorWidth - hallRoom.width) / 2);
-      const hallY = this.manorDeep - hallRoom.deep;
+
+      // we manually place the hall
       this.addRoom({
         ...hallRoom,
-        x: hallX,
-        y: hallY,
+        x: 5,
+        y: 3,
       }, "add hall - static room // middle south").then(() => {
-        // we place a corridor
-        // starting on north of the hall
-        const corridorX = hallX + 1;
-        const corridorY = 0
-        const corridorDeep = this.manorDeep - hallRoom.deep;
+        // we manually place a corridor
         this.addRoom({
           name: "north-corridor",
           color: "blue",
           width: 1,
-          deep: corridorDeep,
-          x: corridorX,
-          y: corridorY,
+          deep: 5,
+          x: 0,
+          y: 4,
         }, "north-corridor - static room // north of the hall").then(() => {
-          // we place a corridor
-          // starting on west of the hall
-          const corridorX2 = 0;
-          const corridorY2 = hallY + 1
-          const corridorWidth2 = hallX;
+          // we manually place a corridor
           this.addRoom({
             name: "west-corridor",
             color: "blue",
-            width: corridorWidth2,
+            width: 3,
             deep: 1,
-            x: corridorX2,
-            y: corridorY2,
+            x: 6,
+            y: 0,
           }, "west-corridor - static room // west of the hall").then(() => {
-            // we place a corridor
-            // starting on east of the hall
-            const corridorX3 = hallX + hallRoom.width;
-            const corridorY3 = hallY + 1
-            const corridorWidth3 = this.manorWidth - corridorX3;
+            // we manually place a corridor
             this.addRoom({
               name: "east-corridor",
               color: "blue",
-              width: corridorWidth3,
+              width: 4,
               deep: 1,
-              x: corridorX3,
-              y: corridorY3,
+              x: 6,
+              y: 6,
             }, "east-corridor - static room // east of the hall").then(() => {
-              // we place the kitchen
-              // it is always directly on north of the east corridor next to the hall
-              const kitchenX = corridorX3;
-              const kitchenY = corridorY3 - kitchenRoom.deep;
+              // we manually place the kitchen
               this.addRoom({
                 ...kitchenRoom,
-                x: kitchenX,
-                y: kitchenY,
+                x: 3,
+                y: 6,
               }, "kitchen - static room - north of the east corridor // next to the hall").then(() => {
-                // we place the garage
-                // it is always directly on south of the west corridor next to the hall
-                const garageX = hallX - garageRoom.width;
-                const garageY = corridorY2 + 1;
+                // we manually place the garage
                 this.addRoom({
                   ...garageRoom,
-                  x: garageX,
-                  y: garageY,
+                  x: 7,
+                  y: 0,
                 }, "garage - static room - south of the west corridor // next to the hall").then(() => {
                   this.generateDynamics();
                 })
@@ -264,16 +247,17 @@ export default defineComponent({
                 })
           })
     },
-
     mirroringRoom(room) {
+      // we mirror the room
+      // on the X axis (north/south)
       return {
         ...room,
         mirroring: true,
         access: room.access.map((accessPoint) => {
           return {
             ...accessPoint,
-            x: room.width - accessPoint.x - 1,
             direction: accessPoint.direction === "west" ? "east" : accessPoint.direction === "east" ? "west" : accessPoint.direction,
+            y: room.width - accessPoint.y - 1,
           }
         })
       }
@@ -283,11 +267,19 @@ export default defineComponent({
         // we check if any slot access match any room access
         const slotAccess = slot.access;
         const roomAccess = room.access;
-        return slotAccess.some((slotAccessPoint) => {
-          return roomAccess.some((roomAccessPoint) => {
-            return slotAccessPoint.x === roomAccessPoint.x && slotAccessPoint.y === roomAccessPoint.y && slotAccessPoint.direction === roomAccessPoint.direction;
-          })
-        })
+        const accessMatch = slotAccess
+            .some((slotAccessPoint) => {
+              return roomAccess
+                  .some((roomAccessPoint) => {
+                    return slotAccessPoint.x === roomAccessPoint.x && slotAccessPoint.y === roomAccessPoint.y && slotAccessPoint.direction === roomAccessPoint.direction;
+                  })
+            })
+
+        // if a neighbour has the same name, we return false
+        // TODO est-ce qu'on check si deux pièces sont voisines ?
+        const noNeighbourSameName = true;
+
+        return accessMatch && noNeighbourSameName;
       } else {
         return false;
       }
@@ -300,7 +292,7 @@ export default defineComponent({
         this.rooms
             .forEach((room, index) => {
               if (room.overlay) {
-                // Nous obtenons la salle associée.
+                // we get the associated room
                 const associatedRoom = this.rooms.find((roomAssociated) => {
                   return roomAssociated.x === room.x && roomAssociated.y === room.y && !roomAssociated.overlay;
                 });
@@ -312,6 +304,17 @@ export default defineComponent({
                           slotAccessPoint.isUsed = associatedRoom?.access.some((associatedAccessPoint) => {
                             return slotAccessPoint.x === associatedAccessPoint.x && slotAccessPoint.y === associatedAccessPoint.y && slotAccessPoint.direction === associatedAccessPoint.direction;
                           });
+                          if (slotAccessPoint.isUsed) {
+                            // we add the access to the room in matrix
+                            this.matrix[room.y][room.x] = {
+                              ...this.matrix[room.y][room.x],
+                              access: {
+                                x: slotAccessPoint.x,
+                                y: slotAccessPoint.y,
+                                direction: slotAccessPoint.direction,
+                              }
+                            }
+                          }
 
                           this.addInfo(`slot ${room.width}x${room.deep}_${room.x}-${room.y} access ${slotAccessPoint.x}-${slotAccessPoint.y} ${slotAccessPoint.direction} is ${slotAccessPoint.isUsed ? 'used' : 'not used'}`)
 
@@ -340,6 +343,17 @@ export default defineComponent({
       })
     },
     addRoom(room, message) {
+      // we push needed info in output matrix
+      const { x, y, width, deep } = room;
+      this.matrix[y][x] = {
+        ...this.matrix[y][x],
+        room: {
+          name: room.name,
+          width,
+          deep,
+        }
+      }
+
       return new Promise((resolve) => {
         setTimeout(() => {
           this.rooms.push(room);
@@ -360,8 +374,36 @@ export default defineComponent({
       })
     },
     end() {
+      // test if each room reach minInstances
+      this.addStep(`Test if each room reach minInstances`, "blue")
+          .then(() => {
+            const roomsNotMin = this.roomsDynamic
+                .filter((room) => {
+                  return room.minInstances && this.rooms.filter((roomPlaced) => {
+                    return roomPlaced.name === room.name;
+                  }).length < room.minInstances;
+                });
+
+            if (roomsNotMin.length) {
+              this.addStep(`Rooms not reaching minInstances: ${roomsNotMin.map((room) => room.name).join(", ")}`, "red")
+                  .then(() => {
+                    this.addStep(`Generation failed`, "red")
+                        .then(() => {
+                          this.$emit("update:canRegenerate", true);
+                        })
+                  })
+            } else {
+              this.addStep(`Each room reach minInstances`, "blue")
+                  .then(() => {
+                    this.addStep(`Generation succeed`, "green")
+                        .then(() => {
+                          this.$emit("update:canRegenerate", true);
+                        })
+                  })
+            }
+          })
+
       // we unchecked the demo in the parent
-      console.log("end")
       this.$emit("update:canRegenerate", true);
     },
   },
@@ -389,10 +431,12 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="inline-flex flex-wrap mr-4 justify-center items-center">
-    <div ref="logs" class="mr-4 w-64 h-[300px] overflow-auto order-2 sm:order-1">
-      Déroulement de la génération:
-      <ul class="bg-black text-white p-2 text-xs h-max">
+  <div class="inline-flex flex-wrap mr-4 justify-center items-start">
+    <div class="mr-4 w-64 order-2 sm:order-1 flex flex-col">
+      <h3>
+        Déroulement :
+      </h3>
+      <ul ref="logs" class="bg-black text-white p-2 text-xs h-[300px] overflow-auto">
         <transition-group name="info" tag="div">
           <li
               class="last:font-bold last:text-green-400"
@@ -408,38 +452,91 @@ export default defineComponent({
     <!-- generate a visual grid with border pointed -->
     <!-- the wall manor is 400px by 400px -->
     <!-- the grid is 40x40 -->
-    <div class="border-4 border-black inline-block sm:scale-100 scale-75 order-1 sm:order-2">
-      <div
-          class="grid gap-0 relative"
-          :style="{
+    <div class="flex flex-col order-1 sm:order-2">
+      <h3>
+        Preview :
+      </h3>
+
+      <span class="text-xs mb-2">
+        X : forward/backward<br>
+        Y : left/right<br>
+        Z . up/down
+        </span>
+
+      <div class="text-xs text-center">
+        north
+      </div>
+      <div class="border-4 border-black inline-block sm:scale-100 scale-75">
+        <div
+            class="grid gap-0 relative"
+            :style="{
             gridTemplateRows: `repeat(${manorDeep}, 40px)`,
             gridTemplateColumns: `repeat(${manorWidth}, 40px)`,
           }">
-        <div
-            v-for="slot in slotMatrix"
-            :key="slot.id"
-            class="slot w-10 h-10 border border-black border-dashed flex justify-center items-end opacity-50 text-xs">
-          {{ slot.name }}
-        </div>
+          <template v-for="row in matrix">
+            <template
+                v-for="slot in row"
+                :key="`${slot.x}-${slot.y}`">
+              <div
+                  class="slot w-10 h-10 border border-black border-dashed opacity-50 text-xs text-center leading-none flex flex-col justify-center">
+                <small class="block opacity-50">x - y</small>
+                {{ slot.y }} - {{ slot.x }}
+              </div>
+            </template>
+          </template>
 
-        <!-- we place the rooms -->
-        <transition-group
-            name="room"
-            tag="div">
-          <RoomGeneration
-              v-for="room in rooms"
-              :key="room.name"
-              :name="room.name"
-              :x="room.x"
-              :y="room.y"
-              :width="room.width"
-              :deep="room.deep"
-              :color="room.color"
-              :overlay="room.overlay"
-              :access="room.access"
-              :mirroring="room.mirroring"
-          />
-        </transition-group>
+          <!-- we place the rooms -->
+          <transition-group
+              name="room"
+              tag="div">
+            <RoomGeneration
+                v-for="room in rooms"
+                :key="room.name"
+                :name="room.name"
+                :x="room.x"
+                :y="room.y"
+                :width="room.width"
+                :deep="room.deep"
+                :color="room.color"
+                :overlay="room.overlay"
+                :access="room.access"
+                :mirroring="room.mirroring"
+            />
+          </transition-group>
+        </div>
+      </div>
+      <div class="text-xs text-center">
+        south
+      </div>
+
+      <div class="order-2">
+        Matrice :
+
+        <div class="flex">
+          <div
+              v-for="row in matrix">
+            <div
+                v-for="slot in row"
+                :key="slot.id"
+                class="slot w-10 h-10 border border-black/50 border-dashed flex justify-center items-end text-xs">
+              <div
+                  class="matrix-slot text-white text-[8px] w-full h-full flex justify-center items-center relative bg-black/50"
+                  :class="{
+                  'bg-green-400': slot.room,
+                  }"
+              >
+                {{ slot.x }} - {{ slot.y }}
+
+                <!-- on hover, we display informations in a popup -->
+                <div class="matrix-slot__info absolute bg-black z-10 top-full">
+                <pre>
+                  {{ slot }}
+                </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -469,5 +566,17 @@ export default defineComponent({
 .info-enter-from, .info-leave-to {
   opacity: 0;
   transform: translateX(-20px);
+}
+
+.matrix-slot {
+  cursor: pointer;
+}
+
+.matrix-slot__info {
+  display: none;
+}
+
+.matrix-slot:hover .matrix-slot__info {
+  display: block;
 }
 </style>
