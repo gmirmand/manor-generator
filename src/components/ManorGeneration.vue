@@ -86,8 +86,8 @@ export default defineComponent({
       // we manually place the hall
       this.addRoom({
         ...hallRoom,
-        x: 5,
-        y: 3,
+        x: 3,
+        y: 5,
       }, "add hall - static room // middle south").then(() => {
         // we manually place a corridor
         this.addRoom({
@@ -95,8 +95,8 @@ export default defineComponent({
           color: "blue",
           width: 1,
           deep: 5,
-          x: 0,
-          y: 4,
+          x: 4,
+          y: 0,
         }, "north-corridor - static room // north of the hall").then(() => {
           // we manually place a corridor
           this.addRoom({
@@ -104,8 +104,8 @@ export default defineComponent({
             color: "blue",
             width: 3,
             deep: 1,
-            x: 6,
-            y: 0,
+            x: 0,
+            y: 6,
           }, "west-corridor - static room // west of the hall").then(() => {
             // we manually place a corridor
             this.addRoom({
@@ -119,14 +119,14 @@ export default defineComponent({
               // we manually place the kitchen
               this.addRoom({
                 ...kitchenRoom,
-                x: 3,
-                y: 6,
+                x: 6,
+                y: 3,
               }, "kitchen - static room - north of the east corridor // next to the hall").then(() => {
                 // we manually place the garage
                 this.addRoom({
                   ...garageRoom,
-                  x: 7,
-                  y: 0,
+                  x: 0,
+                  y: 7,
                 }, "garage - static room - south of the west corridor // next to the hall").then(() => {
                   this.generateDynamics();
                 })
@@ -237,7 +237,8 @@ export default defineComponent({
                   // with setTimout and addStep, it's a promise that wait 1s to see the evolution
                   this.addStep(`Define slots access`, "blue")
                       .then(() => {
-                        this.defineSlotsAccess().then(() => {
+                        this.defineSlotsAccess()
+                            .then(() => {
                           this.addStep(`Slots access defined`, "blue")
                               .then(() => {
                                 this.end();
@@ -249,17 +250,18 @@ export default defineComponent({
     },
     mirroringRoom(room) {
       // we mirror the room
-      // on the X axis (north/south)
+      // left goes right
       return {
         ...room,
         mirroring: true,
-        access: room.access.map((accessPoint) => {
-          return {
-            ...accessPoint,
-            direction: accessPoint.direction === "west" ? "east" : accessPoint.direction === "east" ? "west" : accessPoint.direction,
-            y: room.width - accessPoint.y - 1,
-          }
-        })
+        access: room.access
+            .map((accessPoint) => {
+              return {
+                ...accessPoint,
+                direction: accessPoint.direction === "west" ? "east" : accessPoint.direction === "east" ? "west" : accessPoint.direction,
+                x: room.width - accessPoint.x - 1,
+              }
+            })
       }
     },
     testRoomWithSlot(room, slot) {
@@ -276,7 +278,7 @@ export default defineComponent({
             })
 
         // if a neighbour has the same name, we return false
-        // TODO est-ce qu'on check si deux pièces sont voisines ?
+        // TODO est-ce qu'il faut ajouter une option pour que certaines pièces ne soient voisines ? compliqué...
         const noNeighbourSameName = true;
 
         return accessMatch && noNeighbourSameName;
@@ -306,8 +308,8 @@ export default defineComponent({
                           });
                           if (slotAccessPoint.isUsed) {
                             // we add the access to the room in matrix
-                            this.matrix[room.y][room.x] = {
-                              ...this.matrix[room.y][room.x],
+                            this.matrix[room.x][room.y] = {
+                              ...this.matrix[room.x][room.y],
                               access: {
                                 x: slotAccessPoint.x,
                                 y: slotAccessPoint.y,
@@ -319,7 +321,7 @@ export default defineComponent({
                           this.addInfo(`slot ${room.width}x${room.deep}_${room.x}-${room.y} access ${slotAccessPoint.x}-${slotAccessPoint.y} ${slotAccessPoint.direction} is ${slotAccessPoint.isUsed ? 'used' : 'not used'}`)
 
                           resolve();
-                        }, this.demo / 3 * index)
+                        }, this.demo / 3 * (index - 1))
                       }))
                     });
               }
@@ -343,19 +345,20 @@ export default defineComponent({
       })
     },
     addRoom(room, message) {
-      // we push needed info in output matrix
-      const { x, y, width, deep } = room;
-      this.matrix[y][x] = {
-        ...this.matrix[y][x],
-        room: {
-          name: room.name,
-          width,
-          deep,
-        }
-      }
-
       return new Promise((resolve) => {
         setTimeout(() => {
+          // we push needed info in output matrix
+          const { x, y, width, deep } = room;
+          this.matrix[x][y] = {
+            ...this.matrix[x][y],
+            room: {
+              name: room.name,
+              width,
+              deep,
+            }
+          }
+
+          // we push the room in rooms
           this.rooms.push(room);
           this.addStep(message, room.color)
               .then(() => {
@@ -457,13 +460,7 @@ export default defineComponent({
         Preview :
       </h3>
 
-      <span class="text-xs mb-2">
-        X : forward/backward<br>
-        Y : left/right<br>
-        Z . up/down
-        </span>
-
-      <div class="text-xs text-center">
+      <div class="text-xs text-center -mt-4">
         north
       </div>
       <div class="border-4 border-black inline-block sm:scale-100 scale-75">
@@ -480,7 +477,7 @@ export default defineComponent({
               <div
                   class="slot w-10 h-10 border border-black border-dashed opacity-50 text-xs text-center leading-none flex flex-col justify-center">
                 <small class="block opacity-50">x - y</small>
-                {{ slot.y }} - {{ slot.x }}
+                {{ slot.x }} - {{ slot.y }}
               </div>
             </template>
           </template>
@@ -525,7 +522,7 @@ export default defineComponent({
                   'bg-green-400': slot.room,
                   }"
               >
-                {{ slot.x }} - {{ slot.y }}
+                {{ slot.y }} - {{ slot. x }}
 
                 <!-- on hover, we display informations in a popup -->
                 <div class="matrix-slot__info absolute bg-black z-10 top-full">
@@ -544,6 +541,9 @@ export default defineComponent({
     <div
         ref="rooms-log"
         class="ml-4 w-64 max-h-[400px] overflow-auto order-3 sm:order-3">
+      <h3>
+        Rooms rules :
+      </h3>
       <pre>{{ rooms }}</pre>
     </div>
   </div>

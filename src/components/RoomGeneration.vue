@@ -21,8 +21,8 @@ export default defineComponent({
   <div
       class="absolute text-xs inline-flex justify-center items-start leading-none outline outline-4 -outline-offset-4 italic"
       :style="{
-            top: `${(x) * 40}px`,
-            left: `${(y) * 40}px`,
+            top: `${(y) * 40}px`,
+            left: `${(x) * 40}px`,
             width: `${width * 40}px`,
             height: `${deep * 40}px`,
             outlineColor: color,
@@ -36,17 +36,17 @@ export default defineComponent({
       {{ name }} {{ mirroring ? '[mirror]' : '' }}
     </span>
 
-    <template v-for="ySlot in width">
+    <template v-for="xSlot in width">
       <template
-          v-for="xSlot in deep"
+          v-for="ySlot in deep"
           :key="`${name}-${xSlot}-${ySlot}`">
         <div
             class="room w-10 h-10 border border-dashed border-black absolute text-[8px] font-bold inline-flex justify-center items-start leading-none"
             :style="{
             borderColor: color,
             color: color,
-            top: `${(xSlot - 1 ) * 40}px`,
-            left: `${(ySlot - 1 ) * 40}px`,
+            top: `${(ySlot - 1 ) * 40}px`,
+            left: `${(xSlot - 1 ) * 40}px`,
             }
             "/>
       </template>
@@ -59,8 +59,8 @@ export default defineComponent({
       <div
           class="absolute w-10 h-10 flex"
           :style="{
-            top: `${(accessPoint.x) * 40}px`,
-            left: `${(accessPoint.y) * 40}px`,
+            top: `${(accessPoint.y) * 40}px`,
+            left: `${(accessPoint.x) * 40}px`,
             justifyContent: accessPoint.direction === 'west' ? 'flex-start' : accessPoint.direction === 'east' ? 'flex-end' : 'center',
             alignItems: accessPoint.direction === 'north' ? 'flex-start' : accessPoint.direction === 'south' ? 'flex-end' : 'center',
             zIndex: overlay ? 20 : 10,

@@ -5,18 +5,18 @@ export const hallRoom = {
   deep: 5,
   access: [
     {
-      x: 1,
-      y: 0,
+      x: 0,
+      y: 1,
       direction: "west",
     },
     {
-      x: 0,
-      y: 1,
+      x: 1,
+      y: 0,
       direction: "north",
     },
     {
-      x: 1,
-      y: 2,
+      x: 2,
+      y: 1,
       direction: "east",
     }
   ]
@@ -31,8 +31,8 @@ export const kitchenRoom = {
   deep: 3,
   access: [
     {
-      x: 2,
-      y: 1,
+      x: 1,
+      y: 2,
       direction: "south",
     }
   ]
@@ -47,8 +47,8 @@ export const garageRoom = {
   deep: 3,
   access: [
     {
-      x: 0,
-      y: 2,
+      x: 2,
+      y: 0,
       direction: "north",
     }
   ]
@@ -56,28 +56,53 @@ export const garageRoom = {
 
 // DYNAMIC ROOMS
 export const dynamicSlots = [
+  // TODO: est-ce qu'on peut faire des salles qui sont connectées à une autre salle dynamique ?
+  // TODO : ça ajouterait de la complexité, mais ça pourrait être intéressant
+  // {
+  //   x: 7,
+  //   y: 0,
+  //   width: 3,
+  //   deep: 3,
+  //   access: [
+  //     {
+  //       x: 0,
+  //       y: 0,
+  //       direction: "west",
+  //     },
+  //     {
+  //       x: 0,
+  //       y: 1,
+  //       direction: "west",
+  //     },
+  //     {
+  //       x: 0,
+  //       y: 2,
+  //       direction: "west",
+  //     }
+  //   ]
+  // },
   {
     width: 1,
     deep: 1,
-    x: 4,
+    x: 3,
+    y: 4,
+    access: [
+      {
+        x: 0,
+        y: 0,
+        direction: "east",
+      }
+    ]
+  },
+  {
+    width: 1,
+    deep: 1,
+    x: 5,
     y: 3,
     access: [
       {
         x: 0,
         y: 0,
-        direction: "east",
-      }
-    ]
-  },
-  {
-    width: 1,
-    deep: 1,
-    x: 3,
-    y: 5,
-    access: [
-      {
-        x: 0,
-        y: 0,
         direction: "west",
       }
     ]
@@ -85,8 +110,8 @@ export const dynamicSlots = [
   {
     width: 1,
     deep: 1,
-    x: 4,
-    y: 5,
+    x: 5,
+    y: 4,
     access: [
       {
         x: 0,
@@ -98,8 +123,8 @@ export const dynamicSlots = [
   {
     width: 2,
     deep: 2,
-    x: 7,
-    y: 8,
+    x: 8,
+    y: 7,
     access: [
       {
         x: 0,
@@ -107,8 +132,8 @@ export const dynamicSlots = [
         direction: "north",
       },
       {
-        x: 0,
-        y: 1,
+        x: 1,
+        y: 0,
         direction: "north",
       }
     ]
@@ -116,8 +141,8 @@ export const dynamicSlots = [
   {
     width: 2,
     deep: 2,
-    x: 1,
-    y: 5,
+    x: 5,
+    y: 1,
     access: [
       {
         x: 0,
@@ -125,27 +150,17 @@ export const dynamicSlots = [
         direction: "west",
       },
       {
-        x: 1,
-        y: 0,
-        direction: "west",
-      },
-      {
         x: 0,
         y: 1,
-        direction: "east",
-      },
-      {
-        x: 1,
-        y: 1,
-        direction: "east",
+        direction: "west",
       },
     ]
   },
   {
     width: 2,
     deep: 3,
-    x: 7,
-    y: 6,
+    x: 6,
+    y: 7,
     access: [
       {
         x: 0,
@@ -153,8 +168,8 @@ export const dynamicSlots = [
         direction: "north",
       },
       {
-        x: 0,
-        y: 1,
+        x: 1,
+        y: 0,
         direction: "north",
       },
     ]
@@ -162,12 +177,12 @@ export const dynamicSlots = [
   {
     width: 3,
     deep: 2,
-    x: 4,
-    y: 0,
+    x: 0,
+    y: 4,
     access: [
       {
-        x: 1,
-        y: 0,
+        x: 0,
+        y: 1,
         direction: "south",
       },
       {
@@ -176,8 +191,8 @@ export const dynamicSlots = [
         direction: "south",
       },
       {
-        x: 1,
-        y: 2,
+        x: 2,
+        y: 1,
         direction: "south",
       },
     ]
@@ -189,13 +204,13 @@ export const dynamicSlots = [
     y: 1,
     access: [
       {
-        x: 0,
-        y: 2,
+        x: 2,
+        y: 0,
         direction: "east",
       },
       {
-        x: 1,
-        y: 2,
+        x: 2,
+        y: 1,
         direction: "east",
       },
       {
@@ -208,19 +223,19 @@ export const dynamicSlots = [
   {
     width: 2,
     deep: 1,
-    x: 0,
-    y: 2,
+    x: 2,
+    y: 0,
     access: [{
-      x: 0,
-      y: 1,
+      x: 1,
+      y: 0,
       direction: "east",
     }]
   },
   {
     width: 2,
     deep: 1,
-    x: 0,
-    y: 5,
+    x: 5,
+    y: 0,
     access: [{
       x: 0,
       y: 0,
@@ -230,8 +245,8 @@ export const dynamicSlots = [
   {
     width: 1,
     deep: 1,
-    x: 5,
-    y: 9,
+    x: 9,
+    y: 5,
     access: [{
       x: 0,
       y: 0,
@@ -252,13 +267,13 @@ export const salonRoom = {
       access: [
         {
           direction: "south",
-          x: 2,
-          y: 1,
+          x: 1,
+          y: 2,
         },
         {
           direction: "east",
-          x: 1,
-          y: 2,
+          x: 2,
+          y: 1,
         },
         {
           direction: "north",
@@ -283,8 +298,8 @@ export const salonRoom = {
         },
         {
           direction: "east",
-          x: 0,
-          y: 2,
+          x: 2,
+          y: 0,
         },
       ]
     },
@@ -294,8 +309,8 @@ export const salonRoom = {
       access: [
         {
           direction: "south",
-          x: 2,
-          y: 0,
+          x: 0,
+          y: 2,
         },
         {
           direction: "east",
@@ -331,13 +346,13 @@ export const restRoom = {
       access: [
         {
           direction: "south",
-          x: 2,
-          y: 1,
+          x: 1,
+          y: 2,
         },
         {
           direction: "east",
-          x: 1,
-          y: 2,
+          x: 2,
+          y: 1,
         },
       ]
     },
@@ -352,8 +367,8 @@ export const restRoom = {
         },
         {
           direction: "east",
-          x: 0,
-          y: 2,
+          x: 2,
+          y: 0,
         },
       ]
     },
@@ -363,8 +378,8 @@ export const restRoom = {
       access: [
         {
           direction: "south",
-          x: 2,
-          y: 0,
+          x: 0,
+          y: 2,
         },
         {
           direction: "east",
@@ -426,13 +441,13 @@ export const bathroomRoom = {
       access: [
         {
           direction: "south",
-          x: 0,
-          y: 1,
+          x: 1,
+          y: 0,
         },
         {
           direction: "east",
-          x: 0,
-          y: 1,
+          x: 1,
+          y: 0,
         },
       ]
     },
@@ -442,13 +457,13 @@ export const bathroomRoom = {
       access: [
         {
           direction: "south",
-          x: 1,
-          y: 0,
+          x: 0,
+          y: 1,
         },
         {
           direction: "east",
-          x: 1,
-          y: 0,
+          x: 0,
+          y: 1,
         },
       ]
     },
@@ -469,8 +484,8 @@ export const officeRoom = {
       access: [
         {
           direction: "south",
-          x: 1,
-          y: 0,
+          x: 0,
+          y: 1,
         },
         {
           direction: "east",
@@ -500,8 +515,8 @@ export const officeRoom = {
         },
         {
           direction: "east",
-          x: 0,
-          y: 1,
+          x: 1,
+          y: 0,
         },
       ]
     },
@@ -511,13 +526,13 @@ export const officeRoom = {
       access: [
         {
           direction: "south",
-          x: 1,
-          y: 0,
+          x: 0,
+          y: 1,
         },
         {
           direction: "east",
-          x: 1,
-          y: 0,
+          x: 0,
+          y: 1,
         },
       ]
     },
