@@ -155,7 +155,7 @@ export default defineComponent({
     },
     generateDynamics() {
       const placedRooms = [];
-      const promises = [];
+
       // delete existing dynamic rooms
       this.rooms = this.rooms
           .filter((room) => {
@@ -176,96 +176,107 @@ export default defineComponent({
       dynamicSlots.sort(() => Math.random() - 0.5);
 
       // we place the dynamic slots
-      dynamicSlots.forEach((slot, index) => {
-        promises.push(
-            new Promise((resolve) => {
+      const slotsPromises = dynamicSlots.map((slot) => new Promise((resolve) => {
+        // we place the slot
+        setTimeout(() => {
+          this.addRoom({
+                ...slot,
+                name: `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`,
+                overlay: true,
+                access: slot.access?.map((accessPoint) => {
+                  return { ...accessPoint, isUsed: false }
+                }),
+                color: "purple",
+              }, `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y} - static room - slot`)
+              .then(() => {
+                resolve(slot);
+              })
+        }, this.demo / 3 * dynamicSlots.indexOf(slot))
+      }));
+
+      Promise.all(slotsPromises)
+          .then((slots) => {
+            const roomsPromises = slots.map((slot) => new Promise((resolve) => {
               setTimeout(() => {
-                this.addInfo(`Starting process for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "blue");
+                const dynamicsRoomsAndMirrored = this.roomsDynamic.map((room) => {
+                  return [room, this.mirroringRoom(room)];
+                }).flat();
+                // we check rooms fitting the slot
+                const roomsFitting = dynamicsRoomsAndMirrored.filter((room) => {
+                  return room.width === slot.width && room.deep === slot.deep && this.testRoomWithSlot(room, slot);
+                });
 
-                // we place the slot
-                this.addRoom({
-                      name: `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`,
-                      overlay: true,
-                      color: "purple",
-                      ...slot,
-                    }, `slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y} - static room - slot`)
-                    .then(() => {
-                      setTimeout(() => {
-                        this.addInfo(`Checking rooms for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "green");
+                // we get rooms that hasn't reached maxInstances
+                const roomsFittingNotMaxed = roomsFitting.filter((room) => {
+                  return !placedRooms.filter((roomPlaced) => {
+                    return roomPlaced.name === room.name;
+                  }).length || placedRooms.filter((roomPlaced) => {
+                    return roomPlaced.name === room.name;
+                  }).length < room.maxInstances || !room.maxInstances;
+                });
 
-                        // we check rooms fitting the slot
-                        const roomsFitting = this.roomsDynamic.filter((room) => {
-                          return room.width === slot.width && room.deep === slot.deep && this.testRoomWithSlot(room, slot);
-                        });
+                // we get rooms that hasn't reached minInstances
+                const roomsFittingNotMin = roomsFitting.filter((room) => {
+                  return !placedRooms.filter((roomPlaced) => {
+                    return roomPlaced.name === room.name;
+                  }).length || placedRooms.filter((roomPlaced) => {
+                    return roomPlaced.name === room.name;
+                  }).length < room.minInstances;
+                });
 
-                        // we get rooms that hasn't reached maxInstances
-                        const roomsFittingNotMaxed = roomsFitting.filter((room) => {
-                          return !placedRooms.filter((roomPlaced) => {
-                            return roomPlaced.name === room.name;
-                          }).length || placedRooms.filter((roomPlaced) => {
-                            return roomPlaced.name === room.name;
-                          }).length < room.maxInstances || !room.maxInstances;
-                        });
+                // we prioritize rooms that hasn't reached minInstances
+                // if no room is found, we take rooms that hasn't reached maxInstances
+                const placeableRooms = roomsFittingNotMin.length ? roomsFittingNotMin : roomsFittingNotMaxed;
 
-                        // we get rooms that hasn't reached minInstances
-                        const roomsFittingNotMin = roomsFitting.filter((room) => {
-                          return !placedRooms.filter((roomPlaced) => {
-                            return roomPlaced.name === room.name;
-                          }).length || placedRooms.filter((roomPlaced) => {
-                            return roomPlaced.name === room.name;
-                          }).length < room.minInstances;
-                        });
+                if (placeableRooms.length === 0) {
+                  this.addStep(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
+                  resolve();
+                } else {
+                  // we pick a random room in placeableRooms
+                  const placedRoom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
 
-                        // we prioritize rooms that hasn't reached minInstances
-                        // if no room is found, we take rooms that hasn't reached maxInstances
-                        const placeableRooms = roomsFittingNotMin.length ? roomsFittingNotMin : roomsFittingNotMaxed;
+                  // we add the room to the placedRooms
+                  placedRooms.push(placedRoom);
+                  this.addRoom({
+                    ...placedRoom,
+                    x: slot.x,
+                    y: slot.y,
+                  }, `pick room ${placedRoom.name} - dynamic room - slot`).then(() => {
+                    resolve();
+                  })
+                }
+              }, this.demo / 3 * slots.indexOf(slot))
+            }));
 
-                        if (placeableRooms.length === 0) {
-                          this.addInfo(`no room found for slot ${slot.width}x${slot.deep}_${slot.x}-${slot.y}`, "red");
-                        } else {
-                          // we pick a random room in placeableRooms
-                          const placedRoom = placeableRooms[Math.floor(Math.random() * placeableRooms.length)];
-
-                          // we add the room to the placedRooms
-                          placedRooms.push(placedRoom);
-                          this.addRoom({
-                            ...placedRoom,
-                            x: slot.x,
-                            y: slot.y,
-                          }, `pick room ${placedRoom.name} - dynamic room - slot`);
-                        }
-
-                        resolve();
-                      }, this.demo / dynamicSlots.length / 2)
-                    });
-              }, this.demo / dynamicSlots.length / 2 * index)
-            })
-        )
-      });
-
-
-      Promise.all(promises)
-          .then(() => {
-            this.end();
+            Promise.all(roomsPromises)
+                .then(() => {
+                  // we define slots access
+                  // with setTimout and addStep, it's a promise that wait 1s to see the evolution
+                  this.addStep(`Define slots access`, "blue")
+                      .then(() => {
+                        this.defineSlotsAccess().then(() => {
+                          this.addStep(`Slots access defined`, "blue")
+                              .then(() => {
+                                this.end();
+                              })
+                        })
+                      })
+                })
           })
     },
 
-    // it's a promise that wait 1s to see the evolution
-    addRoom: async function (room, message) {
-      return new Promise((resolve) => {
-        this.addInfo(message, room.color);
-
-        setTimeout(() => {
-          this.rooms.push(room);
-          this.$nextTick(() => {
-            this.$refs["rooms-log"].scrollTop = this.$refs["rooms-log"].scrollHeight;
-          })
-
-          setTimeout(() => {
-            resolve();
-          }, this.demo - this.demo / 3)
-        }, this.demo / 3)
-      })
+    mirroringRoom(room) {
+      return {
+        ...room,
+        mirroring: true,
+        access: room.access.map((accessPoint) => {
+          return {
+            ...accessPoint,
+            x: room.width - accessPoint.x - 1,
+            direction: accessPoint.direction === "west" ? "east" : accessPoint.direction === "east" ? "west" : accessPoint.direction,
+          }
+        })
+      }
     },
     testRoomWithSlot(room, slot) {
       if (room.width === slot.width && room.deep === slot.deep) {
@@ -281,18 +292,76 @@ export default defineComponent({
         return false;
       }
     },
+    defineSlotsAccess() {
+      return new Promise((resolve) => {
+        // we delete dynamic slots (room with overlay) access that don't match the associated room access
+        const promises = [];
+
+        this.rooms
+            .forEach((room, index) => {
+              if (room.overlay) {
+                // Nous obtenons la salle associée.
+                const associatedRoom = this.rooms.find((roomAssociated) => {
+                  return roomAssociated.x === room.x && roomAssociated.y === room.y && !roomAssociated.overlay;
+                });
+
+                room.access
+                    .forEach((slotAccessPoint) => {
+                      promises.push(new Promise((resolve) => {
+                        setTimeout(() => {
+                          slotAccessPoint.isUsed = associatedRoom?.access.some((associatedAccessPoint) => {
+                            return slotAccessPoint.x === associatedAccessPoint.x && slotAccessPoint.y === associatedAccessPoint.y && slotAccessPoint.direction === associatedAccessPoint.direction;
+                          });
+
+                          this.addInfo(`slot ${room.width}x${room.deep}_${room.x}-${room.y} access ${slotAccessPoint.x}-${slotAccessPoint.y} ${slotAccessPoint.direction} is ${slotAccessPoint.isUsed ? 'used' : 'not used'}`)
+
+                          resolve();
+                        }, this.demo / 3 * index)
+                      }))
+                    });
+              }
+            });
+
+        Promise.all(promises)
+            .then(() => {
+              resolve();
+            })
+      });
+    },
+    addStep(message, color = "white") {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          this.addInfo(message, color);
+          this.$nextTick(() => {
+            this.$refs.logs.scrollTop = this.$refs.logs.scrollHeight;
+          })
+          resolve();
+        }, this.demo / 3)
+      })
+    },
+    addRoom(room, message) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          this.rooms.push(room);
+          this.addStep(message, room.color)
+              .then(() => {
+                resolve();
+              })
+        }, this.demo / 3)
+      })
+    },
     addInfo(message, color = "white") {
       this.infos.push({
         message,
         color,
-      })
-
+      });
       this.$nextTick(() => {
         this.$refs.logs.scrollTop = this.$refs.logs.scrollHeight;
       })
     },
     end() {
       // we unchecked the demo in the parent
+      console.log("end")
       this.$emit("update:canRegenerate", true);
     },
   },
@@ -368,6 +437,7 @@ export default defineComponent({
               :color="room.color"
               :overlay="room.overlay"
               :access="room.access"
+              :mirroring="room.mirroring"
           />
         </transition-group>
       </div>

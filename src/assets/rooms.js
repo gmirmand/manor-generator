@@ -195,6 +195,39 @@ export const dynamicSlots = [
       }
     ]
   },
+  {
+    width: 2,
+    deep: 1,
+    x: 2,
+    y: 0,
+    access: [{
+      x: 1,
+      y: 0,
+      direction: "east",
+    }]
+  },
+  {
+    width: 2,
+    deep: 1,
+    x: 5,
+    y: 0,
+    access: [{
+      x: 0,
+      y: 0,
+      direction: "west",
+    }]
+  },
+  {
+    width: 1,
+    deep: 1,
+    x: 9,
+    y: 5,
+    access: [{
+      x: 0,
+      y: 0,
+      direction: "south",
+    }]
+  },
 ];
 
 // salon room
@@ -511,28 +544,6 @@ export const toiletRoom = {
         },
       ]
     },
-    {
-      width: 1,
-      deep: 1,
-      access: [
-        {
-          direction: "east",
-          x: 0,
-          y: 0,
-        },
-      ]
-    },
-    {
-      width: 1,
-      deep: 1,
-      access: [
-        {
-          direction: "north",
-          x: 0,
-          y: 0,
-        },
-      ]
-    },
   ],
   minInstances: 1,
   maxInstances: 1,
@@ -559,28 +570,6 @@ export const closetRoom = {
       access: [
         {
           direction: "west",
-          x: 0,
-          y: 0,
-        },
-      ]
-    },
-    {
-      width: 1,
-      deep: 1,
-      access: [
-        {
-          direction: "east",
-          x: 0,
-          y: 0,
-        },
-      ]
-    },
-    {
-      width: 1,
-      deep: 1,
-      access: [
-        {
-          direction: "north",
           x: 0,
           y: 0,
         },

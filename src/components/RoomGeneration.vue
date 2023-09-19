@@ -12,6 +12,7 @@ export default defineComponent({
     color: String,
     overlay: Boolean,
     access: Array,
+    mirroring: Boolean,
   }
 })
 </script>
@@ -30,9 +31,9 @@ export default defineComponent({
             ">
     <span
         class="mt-2"
-        :class="{'bg-white font-bold border border-black p-1': !overlay}"
+        :class="{'bg-white font-bold border border-black p-1 text-center': !overlay}"
     >
-      {{ name }}
+      {{ name }} {{ mirroring ? '[mirroring]' : '' }}
     </span>
 
     <template v-for="xSlot in width">
@@ -62,14 +63,14 @@ export default defineComponent({
             left: `${(accessPoint.x) * 40}px`,
             justifyContent: accessPoint.direction === 'west' ? 'flex-start' : accessPoint.direction === 'east' ? 'flex-end' : 'center',
             alignItems: accessPoint.direction === 'north' ? 'flex-start' : accessPoint.direction === 'south' ? 'flex-end' : 'center',
-            zIndex: 10,
+            zIndex: overlay ? 20 : 10,
             }"
       >
         <div
-            class="rounded-full w-3 h-3 transform"
+            class="rounded-full w-3 h-3 transform transition-all"
             :style="{
-          background: overlay ? 'black' : color,
-          outline: !overlay ? 'none' : '4px solid',
+          background: overlay ? 'transparent' : color,
+          outline: !overlay ? 'none' : accessPoint.isUsed ? '4px solid' : '2px solid',
           outlineColor: color,
           transform: accessPoint.direction === 'south' ? 'translateY(33%)' : accessPoint.direction === 'north' ? 'translateY(-33%)' : accessPoint.direction === 'west' ? 'translateX(-33%)' : 'translateX(33%)',
         }"/>
